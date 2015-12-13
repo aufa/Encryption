@@ -173,17 +173,6 @@ class EncryptionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test Failure
-     */
-    public function testFailureNotEqualWith()
-    {
-        $this->assertEquals(
-             $this->testEncryptionAlternativeWithSalt(),
-             $this->testDecryptionNull()
-        );
-    }
-
-    /**
      * Test Not equalities
      */
     public function testNotEquals()
