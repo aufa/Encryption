@@ -74,6 +74,8 @@ class Encryption
         // serialize the string , avoid array / object being saved
         $string    = $string; // check if is array or object
         $key       = pack('H*', sha1::hash(sha256::hash($hash)));
+        // pad to 24 length
+        $key       = str_pad($key, 24, "\0", STR_PAD_RIGHT);
         $iv_size   = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
         $iv        = mcrypt_create_iv($iv_size, MCRYPT_RAND);
         // create array as content
@@ -136,6 +138,8 @@ class Encryption
 
         $crypttext   = Util::safeBase64Decode($string);
         $key         = pack('H*', sha1::hash(sha256::hash($hash)));
+        // pad to 24 length
+        $key         = str_pad($key, 24, "\0", STR_PAD_RIGHT);
         $iv_size     = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
         $iv          = mcrypt_create_iv($iv_size, MCRYPT_RAND);
         $decrypttext = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $crypttext, MCRYPT_MODE_ECB, $iv);
