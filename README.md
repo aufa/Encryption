@@ -1,6 +1,8 @@
 # Aufa Encryption
 Another Encryption Helper
 
+[![Build Status](https://travis-ci.org/aufa/Encryption.svg?branch=master)](https://travis-ci.org/aufa/Encryption)
+
 Encrypt string or another type of value to encryption.
 by default encryption use `mcrypt` with:
 `MCRYPT_RIJNDAEL_256` + `MCRYPT_MODE_ECB`
