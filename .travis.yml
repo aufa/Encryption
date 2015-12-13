@@ -9,7 +9,7 @@ before_script:
   - composer install --prefer-dist --dev
 
 script:
-  - ./vendor/bin/phpunit
+  - ./vendor/bin/phpunit --bootstrap ./vendor/autoload.php ./tests/EncrytionTest.php
 
 matrix:
   allow_failures:
