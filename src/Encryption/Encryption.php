@@ -52,12 +52,16 @@ class Encryption
      */
     public static function encrypt($string, $hash = false)
     {
+        /**
+         * if empty values return null
+         */
         if (!$string) {
             return null;
         }
 
         /**
          * Using Alternative Encryption
+         * if mcrypt not loaded
          */
         if (! extension_loaded('mcrypt')) {
             return static::altEncrypt($string, $hash);
@@ -65,25 +69,51 @@ class Encryption
 
         /**
          * ------------------------------------
-         * Safe Sanitized
+         * Safe Sanitized hash
          * ------------------------------------
          */
         (is_null($hash) || $hash === false) && $hash = '';
         // safe is use array or object as hash
         $hash      = Util::maybeSerialize($hash);
-        // serialize the string , avoid array / object being saved
-        $string    = $string; // check if is array or object
+
+        /**
+         * ------------------------------------
+         * Set Key
+         * ------------------------------------
+         */
         $key       = pack('H*', sha1::hash(sha256::hash($hash)));
-        // pad to 24 length
+        /**
+         * pad to 24 length
+         * on PHP 5.5 + need keylength 16, 24 or 32
+         */
         $key       = str_pad($key, 24, "\0", STR_PAD_RIGHT);
+
+        /**
+         * create array as content
+         * this is for great opinion that values has already encrypted
+         * to easily check values
+         */
+        $string    = serialize(array('mcb' => $string));
+
+        /**
+         * ------------------------------------
+         * Doing encryption
+         * ------------------------------------
+         */
         $iv_size   = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
         $iv        = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-        // create array as content
-        // this is for great opinion that values has already encrypted
-        $string    = serialize(array('mcb' => $string));
         $crypttext = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $string, MCRYPT_MODE_ECB, $iv);
+
+        // freed the memory
         unset($string, $key, $iv);
+        // save as bse64 encode safe
         $crypttext = trim(Util::safeBase64Encode($crypttext));
+
+        /**
+         * ------------------------------------
+         * Inject Result of with sign
+         * ------------------------------------
+         */
         if (strlen($crypttext) > 10) {
             return substr_replace($crypttext, 'mCb', 10, 0);
         } else {
@@ -116,36 +146,59 @@ class Encryption
             return null;
         }
 
-        // replace
+        /**
+         * Replace Injection 3 characters sign
+         */
         $string = (strlen($string) > 10
             ? substr_replace($string, '', 10, 3)
             : substr_replace($string, '', 2, 3)
         );
 
-        // this is base64base safeencoded
+        // this is base64 safe encoded?
         if (preg_match('/[^a-z0-9\+\/\=\-\_]/i', $string)) {
             return null;
         }
 
         /**
          * ------------------------------------
-         * Safe Sanitized
+         * Safe Sanitized hash
          * ------------------------------------
          */
         (is_null($hash) || $hash === false) && $hash = '';
         // safe is use array or object as hash
         $hash        = Util::maybeSerialize($hash);
 
-        $crypttext   = Util::safeBase64Decode($string);
+        /**
+         * ------------------------------------
+         * Set Key
+         * ------------------------------------
+         */
         $key         = pack('H*', sha1::hash(sha256::hash($hash)));
-        // pad to 24 length
+        /**
+         * pad to 24 length
+         * on PHP 5.5 + need keylength 16, 24 or 32
+         */
         $key         = str_pad($key, 24, "\0", STR_PAD_RIGHT);
+
+        /**
+         * Doing decode of input encryption
+         */
+        $crypttext   = Util::safeBase64Decode($string);
+        
+        /**
+         * ------------------------------------
+         * Doing deryption
+         * ------------------------------------
+         */
         $iv_size     = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
         $iv          = mcrypt_create_iv($iv_size, MCRYPT_RAND);
         $decrypttext = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $crypttext, MCRYPT_MODE_ECB, $iv);
 
-        // unserialize the string, that before has been serialize
+        /**
+         * unserialize the string, that before has been serialize
+         */
         $decrypttext = Util::maybeUnserialize(trim($decrypttext));
+
         /**
          * Check if value is array
          */
@@ -153,7 +206,10 @@ class Encryption
             unset($string, $key, $iv);
             return $decrypttext['mcb'];
         }
+
+        // freed the memory
         unset($decrypttext, $crypttext, $string, $key, $iv);
+
         return null;
     }
 
@@ -173,14 +229,16 @@ class Encryption
      */
     public static function altEncrypt($str, $pass = '')
     {
-        // if empty string $str return null
+        /**
+         * if empty values return null
+         */
         if (!$str) {
             return null;
         }
 
         /**
          * ------------------------------------
-         * Safe Sanitized
+         * Safe Sanitized hash
          * ------------------------------------
          */
         (is_null($pass) || $pass === false) && $pass = '';
@@ -190,11 +248,21 @@ class Encryption
             $pass = sha1::hash($pass);
         }
 
-        // check if string is not string or need to be serialize
+        // make an array values -> use key acb
         $str = serialize(array('acb' => $str));
         // rotate 13
         $str = pack('a*', Util::rotate($str.sha1::hash(sha256::hash($pass)), 13));
+
+        /**
+         * Doing safe encode base 64
+         */
         $str = Util::safeBase64Encode($str);
+
+        /**
+         * ------------------------------------
+         * Doing convert string
+         * ------------------------------------
+         */
         $str_arr  = str_split($str);
         $pass_arr = str_split($pass);
         $add = 0;
@@ -213,6 +281,12 @@ class Encryption
             $ascii .= chr(($int_add+strlen($str)));
         }
         $ascii = trim(Util::safeBase64Encode($ascii));
+
+        /**
+         * ------------------------------------
+         * Inject Result of with sign
+         * ------------------------------------
+         */
         if (strlen($ascii) > 10) {
             return substr_replace($ascii, 'aCb', 10, 0);
         } else {
@@ -243,16 +317,19 @@ class Encryption
             ) {
                 return static::decrypt($enc, $pass);
             }
+
             return null;
         }
 
-        // replace
+        /**
+         * Replace Injection 3 characters sign
+         */
         $enc = (strlen($enc) > 10
             ? substr_replace($enc, '', 10, 3)
             : substr_replace($enc, '', 2, 3)
         );
 
-        // this is base64base safeencoded
+        // this is base64 safe encoded?
         if (preg_match('/[^a-z0-9\+\/\=\-\_]/i', $enc)) {
             return null;
         }
@@ -268,9 +345,17 @@ class Encryption
         if (!$pass) {
             $pass = sha1::hash($pass);
         }
-        // decode
+        
+        /**
+         * Doing decode of input encryption
+         */
         $enc = Util::safeBase64Decode($enc);
 
+        /**
+         * ------------------------------------
+         * Doing convert encrypted string
+         * ------------------------------------
+         */
         $enc_arr  = str_split($enc);
         $pass_arr = str_split($pass);
         $add = 0;
@@ -294,27 +379,46 @@ class Encryption
          * ------------------------------ */
         // unpack
         $unpack = unpack('a*', trim($ascii));
-
-        // if empty
+        /**
+         * if empty return here
+         */
         if (!$unpack) {
             return null;
         }
+
         // implode the unpacking array
         $unpack = implode('', (array) $unpack);
-        // return $unpack;
+        /**
+         * Doing decode of input encryption from unpacked
+         */
         $unpack = Util::safeBase64Decode($unpack);
-        // rotate 13
+
+        /**
+         * Reverse Rotate
+         */
         $retval = Util::rotate($unpack, 13);
+        /**
+         * For some case packing returning invisible characters
+         * remove it
+         */
+        $retval = Util::removeInvisibleCharacters($retval, fase);
         // check if string less than 40 && match end of hash
         if (strlen($retval) < 40 || substr($retval, -40) !== sha1::hash(sha256::hash($pass))) {
             return;
         }
+        // remove last 40 characters
         $retval = substr($retval, 0, (strlen($retval)-40));
-        // check if string is not string or need to be serialize
+        // check if result is not string it will be need to be unserialize
         $retval = Util::maybeUnserialize($retval);
+
+        /**
+         * Check if value is array
+         */
         if (is_array($retval) && array_key_exists('acb', $retval)) {
             return $retval['acb'];
         }
+
+        // freed the memory
         unset($retval);
 
         return null;
