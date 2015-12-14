@@ -17,6 +17,7 @@ namespace Aufa\Encryption\Cryptography;
 
 /**
  * Crypt Hash Utility
+ * This is also use as Parent class for hash method sha1 & sha256
  */
 class Util
 {
@@ -118,6 +119,7 @@ class Util
 
     /**
      * split a byte-string into integer array values
+     *
      * @return string
      */
     public static function Byte2intSplit($input)
@@ -144,7 +146,8 @@ class Util
 
     /**
      * Abstract Create Hash
-     * @param [type] $str [description]
+     *
+     * @param string $str string to hash by child
      */
     public static function Create($str)
     {
@@ -153,6 +156,7 @@ class Util
 
     /**
      * Default hash method
+     *
      * @param  string $string input string tobe hash
      * @return string         hash
      */
@@ -379,6 +383,7 @@ class Util
     /**
      * Decode 64 Function as alternate function of base64_decode() if not exists
      *     Maybe some result it will be different for some case
+     *
      * @param  string $string
      * @return string
      */
@@ -479,5 +484,36 @@ class Util
         }
 
         return $result;
+    }
+
+    /**
+     * Remove Invisible Characters
+     *
+     * This prevents sandwiching null characters
+     * between ascii characters, like Java\0script.
+     *
+     * @access  public
+     * @param   string
+     * @return string
+     */
+    public static function removeInvisibleCharacters($str, $url_encoded = true)
+    {
+        $non_displayables = array();
+
+        // every control character except newline (dec 10)
+        // carriage return (dec 13), and horizontal tab (dec 09)
+
+        if ($url_encoded) {
+            $non_displayables[] = '/%0[0-8bcef]/';  // url encoded 00-08, 11, 12, 14, 15
+            $non_displayables[] = '/%1[0-9a-f]/';   // url encoded 16-31
+        }
+
+        $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';   // 00-08, 11, 12, 14-31, 127
+
+        do {
+            $str = preg_replace($non_displayables, '', $str, -1, $count);
+        } while ($count);
+
+        return $str;
     }
 }
