@@ -201,7 +201,7 @@ class sha1 extends Util
 
     /**
      * Php5 Magic Method Echoing Object
-     * @return string   end crc32 cache
+     * @return string   end sha1 cache
      */
     public function __toString()
     {
