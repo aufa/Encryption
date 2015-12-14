@@ -21,17 +21,43 @@ namespace Aufa\Encryption\Cryptography;
  */
 class sha1 extends Util
 {
+    /* --------------------------------------------------------------------------------*
+     |                              Class Properties                                   |
+     |---------------------------------------------------------------------------------|
+     */
+
+    /**
+     * Hash record cache
+     * @var array
+     */
     private $x_sha1_record = array();
 
+    /* --------------------------------------------------------------------------------*
+     |                                Class Method                                     |
+     |---------------------------------------------------------------------------------|
+     */
+
+    /**
+     * PHP5 Constructor
+     * Doing add parameters to make hash echoing result
+     *
+     * @param string $str result hash
+     */
     public function __construct($str = null)
     {
-        ! is_null($str) && $this->x_sha1_record[$str] = $this->hash($str);
+        ! is_null($str) && $this->x_sha1_record[$str] = self::hash($str);
     }
 
+    /**
+     * Doing hash
+     *
+     * @param  string $string string to hash
+     * @return string         hash result
+     */
     public static function hash($string)
     {
         /**
-         * Fallback sha1
+         * Fallback sha1([(string) string]);
          */
         if (function_exists('sha1')) {
             return sha1($string);
@@ -56,7 +82,7 @@ class sha1 extends Util
         // convert into string
         $string = "{$string}";
         $instance = self::Singleton();
-        $key = md5($string);
+        $key = md5::hash($string);
         if (isset($instance->x_sha1_record[$key])) {
             return $instance->x_sha1_record[$key];
         }
@@ -168,11 +194,24 @@ class sha1 extends Util
         return -899497514;
     }
 
+    /* --------------------------------------------------------------------------------*
+     |                                Overloading                                      |
+     |---------------------------------------------------------------------------------|
+     */
+
+    /**
+     * Php5 Magic Method Echoing Object
+     * @return string   end crc32 cache
+     */
     public function __toString()
     {
        $retval = end($this->x_sha1_record);
        return "{$retval}";
     }
+
+    /**
+     * Destruct or end of object called & render
+     */
     public function __destruct()
     {
         $this->x_sha1_record = array();

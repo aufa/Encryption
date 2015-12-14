@@ -20,8 +20,39 @@ namespace Aufa\Encryption\Cryptography;
  */
 class sha256 extends Util
 {
+    /* --------------------------------------------------------------------------------*
+     |                              Class Properties                                   |
+     |---------------------------------------------------------------------------------|
+     */
+
+    /**
+     * Hash record cache
+     * @var array
+     */
     private $x_sha256_record = array();
 
+    /* --------------------------------------------------------------------------------*
+     |                                Class Method                                     |
+     |---------------------------------------------------------------------------------|
+     */
+
+    /**
+     * PHP5 Constructor
+     * Doing add parameters to make hash echoing result
+     *
+     * @param string $str result hash
+     */
+    public function __construct($str = null)
+    {
+        ! is_null($str) && $this->x_sha256_record[$str] = self::hash($str);
+    }
+
+    /**
+     * Doing hash
+     *
+     * @param  string $string string to hash
+     * @return string         hash result
+     */
     public static function hash($string)
     {
         /**
@@ -55,7 +86,7 @@ class sha256 extends Util
          * @var object
          */
         $instance = self::Singleton();
-        $key = md5($string);
+        $key = md5::hash($string);
         if (isset($instance->sha1_record[$key])) {
             return $instance->sha1_record[$key];
         }
@@ -260,12 +291,24 @@ class sha256 extends Util
         return (parent::zeroFill($x, $n) | ($x << (32-$n)));
     }
 
+    /* --------------------------------------------------------------------------------*
+     |                                Overloading                                      |
+     |---------------------------------------------------------------------------------|
+     */
+
+    /**
+     * Php5 Magic Method Echoing Object
+     * @return string   end crc32 cache
+     */
     public function __toString()
     {
        $retval = end($this->x_sha256_record);
        return "{$retval}";
     }
 
+    /**
+     * Destruct or end of object called & render
+     */
     public function __destruct()
     {
         $this->x_sha256_record = array();
