@@ -401,7 +401,7 @@ class Encryption
          * For some case packing returning invisible characters
          * remove it
          */
-        $retval = Util::removeInvisibleCharacters($retval, fase);
+        $retval = Util::removeInvisibleCharacters($retval, false);
         // check if string less than 40 && match end of hash
         if (strlen($retval) < 40 || substr($retval, -40) !== sha1::hash(sha256::hash($pass))) {
             return;
