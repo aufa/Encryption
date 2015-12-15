@@ -34,6 +34,23 @@ Aufa\Encryption\Encryption::decrypt('string to decrypt', 'saltkey');
 Aufa\Encryption\Encryption::altDecrypt('string to decrypt', 'saltkey');
 ```
 
+## Install Using Composer
+
+[Composer](https://getcomposer.org) is handy tool for adding library easily from packagist and another resource to your application.
+Get Install on here : [https://getcomposer.org](https://getcomposer.org) and install on your OS.
+
+```json
+{
+  "require": {
+        "nwm/enproject" : "*"
+  }
+}
+```
+
+## Requirements
+
+This library require php 5.3.2 or later. Suggest to enable `mcrypt` on your php configuration.
+
 ## License
 
 GPLv3 or later [https://www.gnu.org/licenses/gpl-3.0.txt](https://www.gnu.org/licenses/gpl-3.0.txt)
