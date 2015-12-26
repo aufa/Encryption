@@ -42,7 +42,7 @@ Get Install on here : [https://getcomposer.org](https://getcomposer.org) and ins
 ```json
 {
   "require": {
-        "nwm/enproject" : "*"
+        "aufa/encryption" : "~1"
   }
 }
 ```
