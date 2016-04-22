@@ -32,6 +32,8 @@ class sha1 extends Util
      */
     private $x_sha1_record = array();
 
+    private static $instance;
+    
     /* --------------------------------------------------------------------------------*
      |                                Class Method                                     |
      |---------------------------------------------------------------------------------|
@@ -45,7 +47,21 @@ class sha1 extends Util
      */
     public function __construct($str = null)
     {
+        self::$instance = $this;
         ! is_null($str) && $this->x_sha1_record[$str] = self::hash($str);
+    }
+
+    /**
+     * Singleton Instance
+     *
+     * @return object
+     */
+    public static function singleton()
+    {
+        if (!is_object(self::$instance)) {
+            self::$instance = new self;
+        }
+        return self::$instance;
     }
 
     /**
@@ -81,7 +97,7 @@ class sha1 extends Util
 
         // convert into string
         $string = "{$string}";
-        $instance = self::Singleton();
+        $instance = self::singleton();
         $key = md5::hash($string);
         if (isset($instance->x_sha1_record[$key])) {
             return $instance->x_sha1_record[$key];
