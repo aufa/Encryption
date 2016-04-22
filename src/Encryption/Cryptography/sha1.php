@@ -32,6 +32,9 @@ class sha1 extends Util
      */
     private $x_sha1_record = array();
 
+    /**
+     * @var sha1 object
+     */
     private static $instance;
     
     /* --------------------------------------------------------------------------------*
@@ -98,7 +101,7 @@ class sha1 extends Util
         // convert into string
         $string = "{$string}";
         $instance = self::singleton();
-        $key = md5::hash($string);
+        $key = md5($string);
         if (isset($instance->x_sha1_record[$key])) {
             return $instance->x_sha1_record[$key];
         }
@@ -163,6 +166,7 @@ class sha1 extends Util
     {
         $strlen_str = strlen($str);
         $nblk = (($strlen_str + 8) >> 6) + 1;
+        $blks = array();
         for ($i=0; $i < $nblk * 16; $i++) {
             $blks[$i] = 0;
         }
