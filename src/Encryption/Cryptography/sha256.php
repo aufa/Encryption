@@ -31,6 +31,8 @@ class sha256 extends Util
      */
     private $x_sha256_record = array();
 
+    private static $instance;
+
     /* --------------------------------------------------------------------------------*
      |                                Class Method                                     |
      |---------------------------------------------------------------------------------|
@@ -44,7 +46,21 @@ class sha256 extends Util
      */
     public function __construct($str = null)
     {
+        self::$instance = $this;
         ! is_null($str) && $this->x_sha256_record[$str] = self::hash($str);
+    }
+
+    /**
+     * Singleton Instance
+     *
+     * @return object
+     */
+    public static function singleton()
+    {
+        if (!is_object(self::$instance)) {
+            self::$instance = new self;
+        }
+        return self::$instance;
     }
 
     /**
