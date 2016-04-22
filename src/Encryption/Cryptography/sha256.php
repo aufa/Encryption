@@ -31,6 +31,9 @@ class sha256 extends Util
      */
     private $x_sha256_record = array();
 
+    /**
+     * @var sha256 object
+     */
     private static $instance;
 
     /* --------------------------------------------------------------------------------*
@@ -78,7 +81,7 @@ class sha256 extends Util
             return hash('sha256', $string);
         }
 
-        $instance = self::Singleton();
+        $instance = self::singleton();
         if (is_array($string) || is_object($string)) {
             $type   = gettype($string);
             $caller =  next(debug_backtrace());
@@ -101,8 +104,8 @@ class sha256 extends Util
          * Instance Application
          * @var object
          */
-        $instance = self::Singleton();
-        $key = md5::hash($string);
+        $instance = self::singleton();
+        $key = md5($string);
         if (isset($instance->sha1_record[$key])) {
             return $instance->sha1_record[$key];
         }
