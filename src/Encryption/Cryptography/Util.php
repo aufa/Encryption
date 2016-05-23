@@ -149,7 +149,7 @@ class Util
      *
      * @param string $str string to hash by child
      */
-    public static function Create($str)
+    public static function create($str)
     {
         return static::hash($str);
     }
