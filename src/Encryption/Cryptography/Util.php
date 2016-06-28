@@ -122,7 +122,7 @@ class Util
      *
      * @return string
      */
-    public static function Byte2intSplit($input)
+    public static function byte2intSplit($input)
     {
         $l = strlen($input);
         if ($l <= 0) {
@@ -178,7 +178,7 @@ class Util
     public static function maybeSerialize($data)
     {
         if (is_array($data) || is_object($data)) {
-            return serialize($data);
+            return @serialize($data);
         }
 
         // Double serialization is required for backward compatibility.
