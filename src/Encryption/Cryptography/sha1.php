@@ -70,8 +70,8 @@ class sha1 extends Util
     /**
      * Doing hash
      *
-     * @param  string $string string to hash
-     * @return string         hash result
+     * @param  string       $string string to hash
+     * @return string|bool          hash result
      */
     public static function hash($string)
     {
@@ -91,11 +91,11 @@ class sha1 extends Util
             trigger_error(
                 "sha1() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$file}</b> on line <b>{$line}</b><br />\n",
+                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return;
+            return false;
         }
 
         // convert into string
@@ -120,7 +120,7 @@ class sha1 extends Util
             $oldc = $c;
             $oldd = $d;
             $olde = $e;
-           
+            !isset($w) && $w = array();
             for ($j = 0; $j < 80; $j++)
             {
                 $w[$j] = ($j < 16) ? $x[$i + $j] : $instance->rotr($w[$j - 3] ^ $w[$j - 8] ^ $w[$j - 14] ^ $w[$j - 16], 1);
@@ -154,6 +154,12 @@ class sha1 extends Util
         return $retval;
     }
 
+    /**
+     * @param int $x int
+     * @param int $y int
+     *
+     * @return int
+     */
     private function add($x, $y)
     {
         $lsw = ($x & 0xFFFF) + ($y & 0xFFFF);
@@ -162,6 +168,11 @@ class sha1 extends Util
         return ($msw << 16) | ($lsw & 0xFFFF);
     }
 
+    /**
+     * @param string $str
+     *
+     * @return array
+     */
     private function blockString($str)
     {
         $strlen_str = strlen($str);
@@ -179,11 +190,25 @@ class sha1 extends Util
         return $blks;
     }
 
+    /**
+     * @param $num
+     * @param $cnt
+     *
+     * @return int
+     */
     private function rotr($num, $cnt)
     {
         return ($num << $cnt) | parent::zeroFill($num, 32 - $cnt);
     }
 
+    /**
+     * @param int $t
+     * @param int $b
+     * @param int $c
+     * @param int $d
+     *
+     * @return int
+     */
     private function rotf($t, $b, $c, $d)
     {
         if ($t < 20) {
@@ -199,6 +224,11 @@ class sha1 extends Util
         return $b ^ $c ^ $d;
     }
 
+    /**
+     * @param int $t
+     *
+     * @return int
+     */
     private function sha1Kt($t)
     {
         if ($t < 20)  {
