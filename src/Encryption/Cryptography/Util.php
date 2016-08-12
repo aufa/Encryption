@@ -23,6 +23,10 @@ class Util
 {
     /**
      * Fills the zero values
+     *
+     * @param int $a
+     * @param int $b
+     *
      * @return int
      */
     public static function zeroFill($a, $b)
@@ -53,15 +57,13 @@ class Util
     public static function str2bin($string)
     {
         if (is_array($string) || is_object($string)) {
-            $type   = gettype($string);
             $caller =  next(debug_backtrace());
-            $eror['line']  = $caller['line'];
-            $eror['file']  = strip_tags($caller['file']);
-            $error['type'] = E_USER_ERROR;
+            $error['line']  = $caller['line'];
+            $error['file']  = strip_tags($caller['file']);
             trigger_error(
                 "str2bin() expects parameter 1 to be string, "
-                . $type
-                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
+                . gettype($string)
+                . " given in <b>{$error['file']}</b> on line <b>{$error['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
@@ -90,15 +92,13 @@ class Util
     public static function bin2str($string)
     {
         if (is_array($string) || is_object($string)) {
-            $type   = gettype($string);
             $caller =  next(debug_backtrace());
-            $eror['line']  = $caller['line'];
-            $eror['file']  = strip_tags($caller['file']);
-            $error['type'] = E_USER_ERROR;
+            $error['line']  = $caller['line'];
+            $error['file']  = strip_tags($caller['file']);
             trigger_error(
                 "bin2str() expects parameter 1 to be string, "
-                . $type
-                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
+                . gettype($string)
+                . " given in <b>{$error['file']}</b> on line <b>{$error['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
@@ -122,7 +122,7 @@ class Util
      *
      * @param string $input
      *
-     * @return string
+     * @return array|bool|int
      */
     public static function byte2intSplit($input)
     {
@@ -136,20 +136,18 @@ class Util
         }
         $result = array();
         for ($i = 0; $i < $l; $i += 4) {
-            $intbuild  = (ord($input[$i]) << 24);
-            $intbuild += (ord($input[$i+1]) << 16);
-            $intbuild += (ord($input[$i+2]) << 8);
-            $intbuild += (ord($input[$i+3]));
-            $result[] = $intbuild;
+            $int_build  = (ord($input[$i]) << 24);
+            $int_build += (ord($input[$i+1]) << 16);
+            $int_build += (ord($input[$i+2]) << 8);
+            $int_build += (ord($input[$i+3]));
+            $result[] = $int_build;
         }
 
         return $result;
     }
 
     /**
-     * Abstract Create Hash
-     *
-     * @param string $str string to hash by child
+     * @param string $str
      *
      * @return string
      */
@@ -174,7 +172,7 @@ class Util
      */
 
     /**
-     * Serialize data, if needed. @uses for ( uncompress serialize values )
+     * Serialize data, if needed. @uses for ( unCompress serialize values )
      *
      * @param  mixed $data Data that might be serialized.
      * @return mixed A scalar data
@@ -196,12 +194,13 @@ class Util
     /**
      * Unserialize value only if it was serialized.
      *
-     * @param  string $original Maybe unserialized original, if is needed.
-     * @return mixed  Unserialized data can be any type.
+     * @param  string $original Maybe unSerialized original, if is needed.
+     *
+     * @return mixed  unSerialized data can be any type.
      */
-    public static function maybeUnserialize($original)
+    public static function maybeUnSerialize($original)
     {
-        // don't attempt to unserialize data that wasn't serialized going in
+        // don't attempt to unSerialize data that wasn't serialized going in
         if (static::isSerialized($original)) {
             return @unserialize($original);
         }
@@ -237,11 +236,10 @@ class Util
         }
 
         if ($strict) {
-            $lastc = substr($data, -1);
-            if (';' !== $lastc && '}' !== $lastc) {
+            $last_c = substr($data, -1);
+            if (';' !== $last_c && '}' !== $last_c) {
                 return false;
             }
-
         } else {
             $semicolon = strpos($data, ';');
             $brace     = strpos($data, '}');
@@ -257,6 +255,7 @@ class Util
 
         $token = $data[0];
         switch ($token) {
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 's':
                 if ($strict) {
                     if ('"' !== substr($data, -2, 1)) {
@@ -296,7 +295,7 @@ class Util
     public static function safeBase64Encode($string)
     {
         $data = static::base64Encode($string);
-        $data = str_replace(array('+','/','='), array('-', '_', ''), $data);
+        $data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
 
         return $data;
     }
@@ -311,7 +310,7 @@ class Util
      */
     public static function safeBase64Decode($string)
     {
-        $data = str_replace(array('-', '_'), array('+','/'), $string);
+        $data = str_replace(array('-', '_'), array('+', '/'), $string);
         $mod4 = strlen($data) % 4;
         if ($mod4) {
             $data .= substr('====', $mod4);
@@ -332,18 +331,18 @@ class Util
         if (is_array($string) || is_object($string)) {
             $type   = gettype($string);
             $caller =  next(debug_backtrace());
-            $eror['line']  = $caller['line'];
-            $eror['file']  = strip_tags($caller['file']);
-            $error['type'] = E_USER_ERROR;
+            $error['line']  = $caller['line'];
+            $error['file']  = strip_tags($caller['file']);
             trigger_error(
                 "base64Encode() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
+                . " given in <b>{$error['file']}</b> on line <b>{$error['file']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return '';
+            return false;
         }
+
         /**
          * Use Internal
          */
@@ -389,19 +388,17 @@ class Util
      *     Maybe some result it will be different for some case
      *
      * @param  string $string
-     * @return string|bool
+     * @return string
      */
     public static function base64Decode($string)
     {
         if (is_array($string) || is_object($string)) {
-            $type   = gettype($string);
             $caller =  next(debug_backtrace());
             $eror['line']  = $caller['line'];
             $eror['file']  = strip_tags($caller['file']);
-            $error['type'] = E_USER_ERROR;
             trigger_error(
                 "base64Decode() expects parameter 1 to be string, "
-                . $type
+                . gettype($string)
                 . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
                 E_USER_ERROR
             );
@@ -492,28 +489,27 @@ class Util
      * This prevents sandwiching null characters
      * between ascii characters, like Java\0script.
      *
-     * @access public
-     * @param  string $str
-     * @param  bool $url_encoded
+     * @param string $str
+     * @param bool $url_encoded
      *
-     * @return string
+     * @return mixed
      */
     public static function removeInvisibleCharacters($str, $url_encoded = true)
     {
-        $non_displayables = array();
+        $non_display_ables = array();
 
         // every control character except newline (dec 10)
         // carriage return (dec 13), and horizontal tab (dec 09)
 
         if ($url_encoded) {
-            $non_displayables[] = '/%0[0-8bcef]/';  // url encoded 00-08, 11, 12, 14, 15
-            $non_displayables[] = '/%1[0-9a-f]/';   // url encoded 16-31
+            $non_display_ables[] = '/%0[0-8bcef]/';  // url encoded 00-08, 11, 12, 14, 15
+            $non_display_ables[] = '/%1[0-9a-f]/';   // url encoded 16-31
         }
 
-        $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';   // 00-08, 11, 12, 14-31, 127
+        $non_display_ables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';   // 00-08, 11, 12, 14-31, 127
 
         do {
-            $str = preg_replace($non_displayables, '', $str, -1, $count);
+            $str = preg_replace($non_display_ables, '', $str, -1, $count);
         } while ($count);
 
         return $str;
