@@ -1,8 +1,8 @@
 <?php
 /**
  * Aufa Encryption
- * This Library create encryption string and reverse it using mcrypt if possble
- *     if mcrypt not exists wil be use alternative encryption
+ * This Library create encryption string and reverse it using mCrypt if possble
+ *     if mCrypt not exists wil be use alternative encryption
  *     decryption will be check string as characters sign.
  *
  * @copyright   Copyright (c) 2015 awan
@@ -22,9 +22,9 @@ use Aufa\Encryption\Cryptography\sha256;
  * Encryption Instance class
  *
  * usage :
- *     (using mcrypt if possible)
+ *     (using mCrypt if possible)
  *     Aufa\Encryption\Encryption::encrypt('string to encrypt', 'saltkey');
- *     (using alternative mcrypt)
+ *     (using alternative mCrypt)
  *     Aufa\Encryption\Encryption::altEncrypt('string to encrypt', 'saltkey');
  *     (decryption)
  *     Aufa\Encryption\Encryption::decrypt('string to decrypt', 'saltkey');
@@ -33,7 +33,7 @@ use Aufa\Encryption\Cryptography\sha256;
 class Encryption
 {
     /* --------------------------------------------------------------------------------*
-     |                              Encryption Mcrypt                                  |
+     |                              Encryption mCrypt                                  |
      |---------------------------------------------------------------------------------|
      */
 
@@ -44,7 +44,7 @@ class Encryption
 
     /**
      * Encrypt the string
-     * with mcrypt, make sure lib mcrypt is active by your php
+     * with mCrypt, make sure lib mCrypt is active by your php
      *
      * @param  mixed  $string the value of string to encryption
      * @param  mixed  $hash
@@ -61,9 +61,9 @@ class Encryption
         }
         /**
          * Using Alternative Encryption
-         * if mcrypt not loaded
+         * if mCrypt not loaded
          */
-        if (! extension_loaded('mcrypt')) {
+        if (! extension_loaded('mCrypt')) {
             return static::altEncrypt($string, $hash);
         }
 
@@ -123,7 +123,7 @@ class Encryption
 
     /**
      * Decrypt the string encryption
-     * with mcrypt, make sure lib mcrypt is active by your php
+     * with mCrypt, make sure lib mCrypt is active by your php
      *
      * @param  mixed $string the value of cookies value
      * @param  mixed $hash
@@ -136,15 +136,19 @@ class Encryption
         if (!is_string($string) || strlen(trim($string)) < 4
             || (strlen($string) > 10 ? (substr($string, 10, 5) !== '_mCb=') : (substr($string, 2, 5) !== '_mCb='))
         ) {
-            // check if mcrypt is not loaded and decrypt using alt decrypt
+
+            // check if mCrypt is not loaded and decrypt using alt decrypt
             if (is_string($string)
                 && strlen(trim($string)) > 3
-                && ! extension_loaded('mcrypt')
                 && (strlen($string) > 10 ? (substr($string, 10, 5) === '_aCb=') : (substr($string, 2, 5) === '_aCb='))
             ) {
                 return static::altDecrypt($string, $hash);
             }
 
+            return null;
+        }
+
+        if (! extension_loaded('mCrypt')) {
             return null;
         }
 
@@ -309,10 +313,10 @@ class Encryption
         if (!is_string($string) || strlen(trim($string)) < 4
             || (strlen($string) > 10 ? (substr($string, 10, 5) !== '_aCb=') : (substr($string, 2, 5) !== '_aCb='))
         ) {
-            // check if mcrypt loaded and crypt using mcrypt
+            // check if mCrypt loaded and crypt using mCrypt
             if (is_string($string)
                 && strlen(trim($string)) > 3
-                && extension_loaded('mcrypt')
+                && extension_loaded('mCrypt')
                 && (strlen($string) > 10 ? (substr($string, 10, 5) === '_mCb=') : (substr($string, 2, 5) === '_mCb='))
             ) {
                 return static::decrypt($string, $pass);
