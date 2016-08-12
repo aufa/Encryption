@@ -81,7 +81,6 @@ class sha256 extends Util
             return hash('sha256', $string);
         }
 
-        $instance = self::singleton();
         if (is_array($string) || is_object($string)) {
             $type   = gettype($string);
             $caller =  next(debug_backtrace());
@@ -91,11 +90,11 @@ class sha256 extends Util
             trigger_error(
                 "sha1() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$file}</b> on line <b>{$line}</b><br />\n",
+                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return;
+            return false;
         }
 
         // convert into string
@@ -159,7 +158,7 @@ class sha256 extends Util
         // loop through message blocks and compute hash. ( For i=1 to N : )
         for ($i = 0; $i < count($string_split); $i++) {
             // Break input block into 16 32-bit words (message schedule prep)
-            $MI = parent::Byte2intSplit($string_split[$i]);
+            $MI = parent::byte2intSplit($string_split[$i]);
             // Initialize working variables
             $a = $state8[0];
             $b = $state8[1];
@@ -277,7 +276,10 @@ class sha256 extends Util
     }
     /**
      * Do the SHA-256 Padding routine (make input a multiple of 512 bits)
+     *
      * @param  string $str string to padding
+     *
+     * @return string
      */
     private function charPad($str)
     {
@@ -317,6 +319,7 @@ class sha256 extends Util
 
     /**
      * Php5 Magic Method Echoing Object
+     *
      * @return string   end sha256 cache
      */
     public function __toString()
