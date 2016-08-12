@@ -61,15 +61,15 @@ class Util
             trigger_error(
                 "str2bin() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$file}</b> on line <b>{$line}</b><br />\n",
+                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return;
+            return '';
         }
 
         if (strlen($string) <= 0) {
-            return;
+            return '';
         }
 
         $string = str_split($string, 1);
@@ -98,15 +98,15 @@ class Util
             trigger_error(
                 "bin2str() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$file}</b> on line <b>{$line}</b><br />\n",
+                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return;
+            return '';
         }
 
         if (strlen($string) <= 0) {
-            return;
+            return '';
         }
 
         $string = str_split($string, 8); // NOTE: this function is PHP5 only
@@ -119,6 +119,8 @@ class Util
 
     /**
      * split a byte-string into integer array values
+     *
+     * @param string $input
      *
      * @return string
      */
@@ -148,6 +150,8 @@ class Util
      * Abstract Create Hash
      *
      * @param string $str string to hash by child
+     *
+     * @return string
      */
     public static function create($str)
     {
@@ -334,11 +338,11 @@ class Util
             trigger_error(
                 "base64Encode() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$file}</b> on line <b>{$line}</b><br />\n",
+                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return;
+            return '';
         }
         /**
          * Use Internal
@@ -385,7 +389,7 @@ class Util
      *     Maybe some result it will be different for some case
      *
      * @param  string $string
-     * @return string
+     * @return string|bool
      */
     public static function base64Decode($string)
     {
@@ -398,11 +402,11 @@ class Util
             trigger_error(
                 "base64Decode() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$file}</b> on line <b>{$line}</b><br />\n",
+                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return;
+            return false;
         }
 
         /**
@@ -417,8 +421,6 @@ class Util
         }
 
         $keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-        $chr1 = $chr2 = $chr3 = "";
-        $enc1 = $enc2 = $enc3 = $enc4 = "";
         $i = 0;
         $output = "";
         // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
@@ -438,8 +440,6 @@ class Util
             if ($enc4 != 64) {
                 $output = $output . chr((int) $chr3);
             }
-            $chr1 = $chr2 = $chr3 = "";
-            $enc1 = $enc2 = $enc3 = $enc4 = "";
         } while ($i < strlen($string));
 
         return urldecode($output);
@@ -492,8 +492,10 @@ class Util
      * This prevents sandwiching null characters
      * between ascii characters, like Java\0script.
      *
-     * @access  public
-     * @param   string
+     * @access public
+     * @param  string $str
+     * @param  bool $url_encoded
+     *
      * @return string
      */
     public static function removeInvisibleCharacters($str, $url_encoded = true)
