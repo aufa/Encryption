@@ -6,37 +6,16 @@ return spl_autoload_register(function($className) {
     /**
      * Determine Base Directory
      */
-    $baseDir = function_exists('realpath') ? realpath(__DIR__) : __DIR__;
-    $baseDir = $baseDir ? $baseDir : __DIR__;
-    $baseDir = $baseDir.'/Encryption/';
-
+    $baseDir = __DIR__ . '/Encryption/';
     // project-specific namespace prefix
     $prefix  = 'Aufa\\Encryption\\';
-    // does the class use the namespace prefix?
-    $len = strlen($prefix);
     $className = ltrim($className, '\\');
-    if (strncmp($prefix, $className, $len) !== 0) {
-        // no, move to the next registered autoloader
+    if (stripos($className, $prefix) !== 0) {
+        // no, move to the next registered auto loader
         return;
     }
-
-    $className = substr($className, $len);
-
-    $nameSpace = '';
-    if ($lastNsPos = strripos($className, '\\')) {
-        $namespace = str_replace('\\', '/', $className);
-        $namespace = substr($namespace, 0, $lastNsPos);
-        $className = substr($className, $lastNsPos + 1);
-        if (is_dir($baseDir. $namespace . '/')) {
-            $baseDir .= $namespace . '/';
-        } else {
-            if (is_dir($baseDir . strtoupper($namespace.'/'))) {
-                $baseDir .= strtoupper($namespace) . '/';
-            } elseif (is_dir($baseDir . ucwords($namespace.'/'))) {
-                $baseDir .= ucwords($namespace) . '/';
-            }
-        }
-    }
+    $className = substr($className, strlen($prefix));
+    $className = str_replace('\\', '//', $className);
 
     /**
      * Fix File for
