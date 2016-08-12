@@ -26,13 +26,12 @@ class sha256 extends Util
      */
 
     /**
-     * Hash record cache
      * @var array
      */
     private $x_sha256_record = array();
 
     /**
-     * @var sha256 object
+     * @var sha256
      */
     private static $instance;
 
@@ -54,13 +53,12 @@ class sha256 extends Util
     }
 
     /**
-     * Singleton Instance
-     *
-     * @return object
+     * Static Singleton
+     * @return sha256
      */
-    public static function singleton()
+    public static function getInstance()
     {
-        if (!is_object(self::$instance)) {
+        if (!self::$instance) {
             self::$instance = new self;
         }
         return self::$instance;
@@ -74,27 +72,31 @@ class sha256 extends Util
      */
     public static function hash($string)
     {
+        static $valid_hash = null;
+        if ($valid_hash === null) {
+            $valid_hash = function_exists('hash') && (in_array('sha256', hash_algos()));
+        }
+
         /**
          * Fallback hash('sha256', [(string) string]);
          */
-        if (function_exists('hash') && (in_array('sha256', hash_algos()))) {
+        if ($valid_hash) {
             return hash('sha256', $string);
         }
 
         if (is_array($string) || is_object($string)) {
             $type   = gettype($string);
             $caller =  next(debug_backtrace());
-            $eror['line']  = $caller['line'];
-            $eror['file']  = strip_tags($caller['file']);
-            $error['type'] = E_USER_ERROR;
+            $error['line']  = $caller['line'];
+            $error['file']  = strip_tags($caller['file']);
             trigger_error(
                 "sha1() expects parameter 1 to be string, "
                 . $type
-                . " given in <b>{$eror['file']}</b> on line <b>{$eror['line']}</b><br />\n",
+                . " given in <b>{$error['file']}</b> on line <b>{$error['line']}</b><br />\n",
                 E_USER_ERROR
             );
 
-            return false;
+            return null;
         }
 
         // convert into string
@@ -103,10 +105,10 @@ class sha256 extends Util
          * Instance Application
          * @var object
          */
-        $instance = self::singleton();
+        $instance = self::getInstance();
         $key = md5($string);
-        if (isset($instance->sha1_record[$key])) {
-            return $instance->sha1_record[$key];
+        if (isset($instance->x_sha256_record[$key])) {
+            return $instance->x_sha256_record[$key];
         }
 
         /**
@@ -246,7 +248,7 @@ class sha256 extends Util
             $state8[7] = $instance->add($state8[7], $h);
         }
         // Convert the 32-bit words into human readable hexadecimal format.
-        $instance->sha1_record[$key] = sprintf(
+        $instance->x_sha256_record[$key] = sprintf(
             "%08x%08x%08x%08x%08x%08x%08x%08x",
             $state8[0],
             $state8[1],
@@ -257,7 +259,7 @@ class sha256 extends Util
             $state8[6],
             $state8[7]
         );
-        $retval = $instance->sha1_record[$key];
+        $ret_val = $instance->x_sha256_record[$key];
         unset(
             $string,
             $W,
@@ -272,12 +274,12 @@ class sha256 extends Util
             $t1,
             $t2
         );
-        return $retval;
+        return $ret_val;
     }
     /**
      * Do the SHA-256 Padding routine (make input a multiple of 512 bits)
      *
-     * @param  string $str string to padding
+     * @param string $str string to padding
      *
      * @return string
      */
@@ -298,8 +300,12 @@ class sha256 extends Util
         $str .= chr(($l & 0xFF));
         return $str;
     }
+
     /**
-     * Add Block value
+     * @param int $x
+     * @param int $y
+     *
+     * @return int
      */
     private function add($x, $y)
     {
@@ -308,7 +314,14 @@ class sha256 extends Util
         return  ($msw << 16) | $lsw & 65535;
     }
 
-    private function rotr($x, $n) {
+    /**
+     * @param int $x
+     * @param int $n
+     *
+     * @return int
+     */
+    private function rotr($x, $n)
+    {
         return (parent::zeroFill($x, $n) | ($x << (32-$n)));
     }
 
@@ -319,13 +332,12 @@ class sha256 extends Util
 
     /**
      * Php5 Magic Method Echoing Object
-     *
      * @return string   end sha256 cache
      */
     public function __toString()
     {
-       $retval = end($this->x_sha256_record);
-       return "{$retval}";
+        $retval = end($this->x_sha256_record);
+        return "{$retval}";
     }
 
     /**
